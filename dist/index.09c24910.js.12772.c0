@@ -1,0 +1,27 @@
+"use strict";
+const searchBar = document.querySelector(".form__field");
+const submitBtn = document.querySelector(".form__btn");
+const searchList = document.querySelector(".nav");
+const userAction = async ()=>{
+    const response = await fetch("https://geo.ipify.org/api/v2/country?apiKey=at_cBNRWQkYEVZMRKWAHt0fBFkX2pGC2&ipAddress=8.8.8.8");
+    const myJson = await response.json(); //extract JSON from the http response
+    // do something with myJson
+    console.log(myJson.location);
+    const inner = `${myJson.location.region}`;
+    searchList.innerHTML = inner;
+};
+userAction();
+let map = L.map("map").setView([
+    6.563707217792017,
+    3.2979194456427874
+], 13);
+console.log(map);
+L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+L.marker([
+    6.563707217792017,
+    3.2979194456427874
+]).addTo(map).bindPopup("A pretty CSS popup.<br> Easily customizable.").openPopup();
+
+//# sourceMappingURL=index.09c24910.js.map
