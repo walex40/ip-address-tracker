@@ -16,26 +16,34 @@ const userAction = function (res) {
         <div class="nav__item">
           <h1>location</h1>
           <span
-            >${res.location.region}, ${res.location.country} <br />
-            ${res.as.asn}</span
+            >${res.city}, ${res.region_code} <br />
+            ${res.postal}</span
           >
         </div>
 
         <div class="nav__item">
           <h1>time zone</h1>
-          <span>UTC${res.location.timezone}</span>
+          <span>UTC${res.utc_offset}</span>
         </div>
 
         <div class="nav__item">
           <h1>isp</h1>
-          <span>${res.as.name}</span>
+          <span>${res.org}</span>
         </div>
   `;
   searchList.innerHTML = inner;
 };
 
+const initializingMap = function () {
+  let container = L.DomUtil.get("map");
+  if (container != null) {
+    container._leaflet_id = null;
+  }
+};
+
 const getLocation = function (corr) {
-  let map = L.map("map").setView([corr.location.lat, corr.location.lng], 13);
+  initializingMap();
+  let map = L.map("map").setView([corr.latitude, corr.longitude], 13);
 
   console.log(map);
 
@@ -44,27 +52,22 @@ const getLocation = function (corr) {
       '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   }).addTo(map);
 
-  // let myIcon = L.divIcon({ className: "my-div-icon" });
-
   let customIcon = L.icon({
     iconUrl: differentImage,
     iconSize: [40, 50],
   });
 
-  L.marker([corr.location.lat, corr.location.lng], { icon: customIcon }).addTo(
-    map
-  );
+  L.marker([corr.latitude, corr.longitude], { icon: customIcon }).addTo(map);
 };
 
 const getIpAddress = function (ipAddress) {
-  fetch(
-    `https://geo.ipify.org/api/v2/country,city?apiKey=at_cBNRWQkYEVZMRKWAHt0fBFkX2pGC2&ipAddress=${ipAddress}`
-  )
+  fetch(` https://ipapi.co/${ipAddress}/json/ `)
     .then((response) => response.json())
     .then((data) => {
       userAction(data);
       getLocation(data);
-    });
+    })
+    .catch((err) => console.log(err));
 };
 
 const getInput = function (e) {
@@ -77,32 +80,16 @@ const getSearchInput = function (e) {
   let input = searchBar.value;
   if (e.key == "Enter" && input != "") {
     e.preventDefault();
-    getIpAddress(input);
+    console.log(getIpAddress(input));
   }
+  const searchValue = localStorage.setItem("search", input);
+  console.log(localStorage.getItem(searchValue));
+  // const storedInput = localStorage.getItem("search", searchBar.value);
+  // console.log(storedInput);
 };
 
 submitBtn.addEventListener("click", getInput);
 searchBar.addEventListener("keydown", getSearchInput);
 
-localStorage.setItem("theme", "light");
-localStorage.setItem("backgroundColor", "white");
-localStorage.setItem("color", "#111");
-
-let keys = Object.keys(localStorage);
-for (let key of keys) {
-  console.log(`${key}: ${localStorage.getItem(key)}`);
-}
-
-const settings = {
-  backgroundColor: "#fff",
-  color: "#111",
-  theme: "light",
-};
-
-localStorage.setItem("settings", JSON.stringify(settings));
-
-console.log(localStorage.getItem("settings"));
-
-addEventListener("storage", function (e) {
-  console.log(`The value of the ${e.key} changed for the ${e.domain}.`);
-});
+// localStorage.getItem(searchBar);
+// console.log(localStorage);
